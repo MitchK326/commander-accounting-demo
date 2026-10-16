@@ -1,0 +1,82 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<title>COMMANDER ACCOUNTING | 財務担当者ワークスペース</title>
+<style>
+:root{color-scheme:dark;font:15px/1.6 system-ui,-apple-system,sans-serif;background:#0b1322;color:#eef5ff}
+body{margin:0;padding:clamp(12px,3vw,35px)}main{max-width:1200px;margin:auto}
+h1{font-size:clamp(24px,4vw,36px);margin-bottom:0}p{color:#b6c9e0}
+.notice{padding:14px;border:1px solid #b88d4e;background:#372c20;border-radius:12px;color:#ffe7ba}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:20px 0}
+.card,section{border:1px solid #344965;background:#17263d;border-radius:14px;padding:17px}
+.num{font-size:27px;font-weight:750}label{display:inline-flex;gap:8px;align-items:center;margin:8px 0}
+select,button{font:inherit;color:#fff;background:#203956;border:1px solid #6784a6;padding:9px;border-radius:8px}
+button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #9cc4ff}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:850px}
+td,th{padding:12px 9px;text-align:left;border-bottom:1px solid #3d5069}
+th{color:#b5c6de}td:nth-child(4){font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}small{color:#bed0e6}
+</style></head><body><main>
+<h1>COMMANDER ACCOUNTING</h1><p>株式会社勝山｜財務担当者ワークスペース（架空データ）</p>
+<div class="notice" role="alert"><strong>オフライン操作デモ：</strong>実財務データの入力・アップロードは禁止です。「確認済み」はこの画面内だけの一時表示で、会計帳簿には一切反映されません。</div>
+<div class="grid"><div class="card">仕訳候補<div class="num" id="count">3件</div></div>
+<div class="card">未確認<div class="num" id="pending">3件</div></div>
+<div class="card">実際の仕訳確定<div class="num">0件</div></div></div>
+<section><h2>仕訳確認</h2>
+<label for="filter">状態を表示</label>
+<select id="filter"><option value="all">すべて</option><option value="要確認">要確認</option><option value="照合候補">照合候補</option><option value="reviewed">画面上で確認済み</option></select>
+<button id="reset" type="button">デモを初期状態に戻す</button>
+<div class="tablewrap"><table><thead><tr><th>日付</th><th>借方</th><th>貸方</th><th>金額</th><th>初期状態</th><th>摘要</th><th>画面内の操作</th></tr></thead>
+<tbody id="journal-body"><tr data-status="照合候補" data-id="1"><td>2026-10-16</td><td>普通預金</td><td>売上高</td><td>¥1,000</td><td>照合候補</td><td>架空売上入金</td><td><button type="button" data-review="1">確認済みにする（画面のみ）</button></td></tr>
+<tr data-status="要確認" data-id="2"><td>2026-10-16</td><td>通信費</td><td>普通預金</td><td>¥900</td><td>要確認</td><td>架空通信費</td><td><button type="button" data-review="2">確認済みにする（画面のみ）</button></td></tr>
+<tr data-status="要確認" data-id="3"><td>2026-10-16</td><td>消耗品費</td><td>普通預金</td><td>¥500</td><td>要確認</td><td>架空事務用品</td><td><button type="button" data-review="3">確認済みにする（画面のみ）</button></td></tr></tbody></table></div>
+<p id="empty" hidden>表示対象がありません。</p></section>
+<section><h2>試算表プレビュー（架空仕訳）</h2>
+<div class="tablewrap"><table><thead><tr><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th></tr></thead><tbody>
+<tr><td>普通預金</td><td>1,000</td><td>1,400</td></tr>
+<tr><td>売上高</td><td>0</td><td>1,000</td></tr>
+<tr><td>通信費</td><td>900</td><td>0</td></tr>
+<tr><td>消耗品費</td><td>500</td><td>0</td></tr>
+<tr><th>合計</th><th>2,400</th><th>2,400</th></tr>
+</tbody></table></div><small>期首残高・税区分は含みません。実際の帳簿ではありません。</small></section>
+<section><h2>銀行・給与・法改正（架空データ）</h2>
+<div class="grid"><div class="card">銀行照合候補<div class="num">2件</div></div>
+<div class="card">照合例外<div class="num">1件</div></div>
+<div class="card">給与集計<div>確認待ち</div></div>
+<div class="card">法令ルール<div>架空ルール検証</div></div></div>
+<small>銀行API・弥生給与・法令の実データとは接続していません。</small></section>
+<section><h2>移行判定</h2><p>CSV検証：架空データのみ / 試算表照合：別のテストで確認 / 本番取込：禁止</p>
+<small>このページは保存・通信を行いません。ブラウザを閉じると確認状態は消えます。</small></section>
+</main><script>
+"use strict";
+const reviewed=new Set();
+const rows=[...document.querySelectorAll("#journal-body tr")];
+const filter=document.getElementById("filter");
+function render(){
+ let shown=0;
+ for(const row of rows){
+  const id=row.dataset.id;
+  const isReviewed=reviewed.has(id);
+  const match=filter.value==="all" || (filter.value==="reviewed"?isReviewed:(!isReviewed&&row.dataset.status===filter.value));
+  row.hidden=!match;
+  if(match)shown++;
+  const button=row.querySelector("button");
+  button.textContent=isReviewed?"確認を取り消す（画面のみ）":"確認済みにする（画面のみ）";
+ }
+ document.getElementById("count").textContent=rows.length+"件";
+ document.getElementById("pending").textContent=(rows.length-reviewed.size)+"件";
+ document.getElementById("empty").hidden=shown!==0;
+}
+for(const row of rows){
+ row.querySelector("button").addEventListener("click",()=>{
+  const id=row.dataset.id;
+  if(reviewed.has(id))reviewed.delete(id);else reviewed.add(id);
+  render();
+ });
+}
+filter.addEventListener("change",render);
+document.getElementById("reset").addEventListener("click",()=>{
+ reviewed.clear();filter.value="all";render();
+});
+render();
+</script></body></html>
