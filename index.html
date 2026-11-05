@@ -47,9 +47,41 @@ th{color:#b5c6de}td:nth-child(4){font-variant-numeric:tabular-nums}
 <small>銀行API・弥生給与・法令の実データとは接続していません。</small></section>
 <section><h2>移行判定</h2><p>CSV検証：架空データのみ / 試算表照合：別のテストで確認 / 本番取込：禁止</p>
 <small>このページは保存・通信を行いません。ブラウザを閉じると確認状態は消えます。</small></section>
+
+<section aria-labelledby="ledger-title"><h2 id="ledger-title">総勘定元帳プレビュー（架空データ）</h2>
+<p>以下は同じ3件の架空仕訳を勘定科目別に並べた期間内増減です。期首残高・確定残高は含みません。</p>
+<div class="tablewrap"><table><thead><tr><th>日付</th><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th><th>摘要</th></tr></thead><tbody>
+<tr><td>2026-10-16</td><td>普通預金</td><td>1,000</td><td>0</td><td>架空売上入金</td></tr>
+<tr><td>2026-10-16</td><td>普通預金</td><td>0</td><td>900</td><td>架空通信費</td></tr>
+<tr><td>2026-10-16</td><td>普通預金</td><td>0</td><td>500</td><td>架空事務用品</td></tr>
+<tr><td>2026-10-16</td><td>売上高</td><td>0</td><td>1,000</td><td>架空売上入金</td></tr>
+<tr><td>2026-10-16</td><td>通信費</td><td>900</td><td>0</td><td>架空通信費</td></tr>
+<tr><td>2026-10-16</td><td>消耗品費</td><td>500</td><td>0</td><td>架空事務用品</td></tr>
+<tr><th>総額</th><th>架空仕訳3件</th><th>2,400</th><th>2,400</th><th>貸借一致（表示例）</th></tr>
+</tbody></table></div><small>データは画面に固定された架空値です。実際の勘定科目台帳ではありません。</small></section>
+<section aria-labelledby="report-title"><h2 id="report-title">BS・PL確認（架空データ）</h2>
+<div class="grid">
+<div class="card"><h3>PL・損益計算書の期間内例</h3><p>架空売上高：1,000円</p><p>架空費用：1,400円</p><div class="num">差引 △400円</div><small>実業績ではありません。</small></div>
+<div class="card"><h3>BS・貸借対照表</h3><p>期首残高・資産負債明細が未設定のため、算出しません。</p><small>損益だけからBSを推定せず、実帳簿への反映も行いません。</small></div>
+</div></section>
+<section aria-labelledby="history-title"><h2 id="history-title">画面操作履歴（メモリ内のみ）</h2>
+<p>仕訳候補の確認・取り消し操作だけを、この画面が開いている間に表示します。端末・サーバーへの保存はありません。</p>
+<ol id="demo-history" aria-live="polite"><li>まだ操作はありません。</li></ol></section>
 </main><script>
 "use strict";
 const reviewed=new Set();
+const history=[];
+function recordDemoAction(label){
+ history.unshift(label);
+ if(history.length>15)history.length=15;
+ const list=document.getElementById("demo-history");
+ list.replaceChildren();
+ for(const msg of history){
+  const item=document.createElement("li");
+  item.textContent=msg;
+  list.appendChild(item);
+ }
+}
 const rows=[...document.querySelectorAll("#journal-body tr")];
 const filter=document.getElementById("filter");
 function render(){
@@ -70,13 +102,13 @@ function render(){
 for(const row of rows){
  row.querySelector("button").addEventListener("click",()=>{
   const id=row.dataset.id;
-  if(reviewed.has(id))reviewed.delete(id);else reviewed.add(id);
+  if(reviewed.has(id)){reviewed.delete(id);recordDemoAction("架空仕訳 "+id+"：確認を取り消し");}else{reviewed.add(id);recordDemoAction("架空仕訳 "+id+"：画面内で確認済み");}
   render();
  });
 }
 filter.addEventListener("change",render);
 document.getElementById("reset").addEventListener("click",()=>{
- reviewed.clear();filter.value="all";render();
+ reviewed.clear();filter.value="all";history.length=0;document.getElementById("demo-history").replaceChildren();recordDemoAction("架空デモを初期化");render();
 });
 render();
 </script></body></html>
