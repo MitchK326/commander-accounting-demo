@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-rGqyGLyWmpikTrdiqVZJB7HDqEjGkI68044qEOjQeSE='; script-src 'sha256-ixG+WR27cyt2RkaST87Kiv+cLac1Y0GBo5DGKDKZY/g='; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-rGqyGLyWmpikTrdiqVZJB7HDqEjGkI68044qEOjQeSE='; script-src 'sha256-FPl3/gnrSEruKB3KcpIEmMSjmNDwzygzbN1QicDwmuo='; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <title>COMMANDER ACCOUNTING | 財務担当者ワークスペース</title>
 <style>
 :root{color-scheme:dark;font:15px/1.6 system-ui,-apple-system,sans-serif;background:#0b1322;color:#eef5ff}
@@ -31,8 +31,8 @@ th{color:#b5c6de}td:nth-child(4){font-variant-numeric:tabular-nums}
 <tr data-status="要確認" data-id="2"><td>2026-10-16</td><td>通信費</td><td>普通預金</td><td>¥900</td><td>要確認</td><td>架空通信費</td><td><button type="button" data-review="2">確認済みにする（画面のみ）</button></td></tr>
 <tr data-status="要確認" data-id="3"><td>2026-10-16</td><td>消耗品費</td><td>普通預金</td><td>¥500</td><td>要確認</td><td>架空事務用品</td><td><button type="button" data-review="3">確認済みにする（画面のみ）</button></td></tr></tbody></table></div>
 <p id="empty" hidden>表示対象がありません。</p></section>
-<section><h2>試算表プレビュー（架空仕訳）</h2>
-<div class="tablewrap"><table><thead><tr><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th></tr></thead><tbody>
+<section aria-labelledby="trial-title"><h2 id="trial-title">試算表プレビュー（架空仕訳）</h2>
+<div class="tablewrap"><table><thead><tr><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th></tr></thead><tbody id="trial-body">
 <tr><td>普通預金</td><td>1,000</td><td>1,400</td></tr>
 <tr><td>売上高</td><td>0</td><td>1,000</td></tr>
 <tr><td>通信費</td><td>900</td><td>0</td></tr>
@@ -50,7 +50,7 @@ th{color:#b5c6de}td:nth-child(4){font-variant-numeric:tabular-nums}
 
 <section aria-labelledby="ledger-title"><h2 id="ledger-title">総勘定元帳プレビュー（架空データ）</h2>
 <p>以下は同じ3件の架空仕訳を勘定科目別に並べた期間内増減です。期首残高・確定残高は含みません。</p>
-<div class="tablewrap"><table><thead><tr><th>日付</th><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th><th>摘要</th></tr></thead><tbody>
+<div class="tablewrap"><table><thead><tr><th>日付</th><th>勘定科目</th><th>借方（円）</th><th>貸方（円）</th><th>摘要</th></tr></thead><tbody id="ledger-body">
 <tr><td>2026-10-16</td><td>普通預金</td><td>1,000</td><td>0</td><td>架空売上入金</td></tr>
 <tr><td>2026-10-16</td><td>普通預金</td><td>0</td><td>900</td><td>架空通信費</td></tr>
 <tr><td>2026-10-16</td><td>普通預金</td><td>0</td><td>500</td><td>架空事務用品</td></tr>
@@ -61,9 +61,15 @@ th{color:#b5c6de}td:nth-child(4){font-variant-numeric:tabular-nums}
 </tbody></table></div><small>データは画面に固定された架空値です。実際の勘定科目台帳ではありません。</small></section>
 <section aria-labelledby="report-title"><h2 id="report-title">BS・PL確認（架空データ）</h2>
 <div class="grid">
-<div class="card"><h3>PL・損益計算書の期間内例</h3><p>架空売上高：1,000円</p><p>架空費用：1,400円</p><div class="num">差引 △400円</div><small>実業績ではありません。</small></div>
+<div class="card"><h3>PL・損益計算書の期間内例</h3><p>架空売上高：1,000円</p><p>架空費用：1,400円</p><div class="num" id="profit-number">差引 △400円</div><small>実業績ではありません。</small></div>
 <div class="card"><h3>BS・貸借対照表</h3><p>期首残高・資産負債明細が未設定のため、算出しません。</p><small>損益だけからBSを推定せず、実帳簿への反映も行いません。</small></div>
 </div></section>
+<section aria-labelledby="parity-title"><h2 id="parity-title">仕訳・元帳・試算表の一致検査（架空データ）</h2>
+<p>このページに埋め込まれた固定3件の仕訳から集計し、総勘定元帳6明細・試算表・PL表示との整合をブラウザー内で検査します。金融機関・会計システムへは接続しません。</p>
+<div class="grid"><div class="card">仕訳の借方合計<div class="num" id="parity-debit">未検査</div></div>
+<div class="card">仕訳の貸方合計<div class="num" id="parity-credit">未検査</div></div>
+<div class="card">帳票間の検査結果<div class="num" id="parity-result" role="status" aria-live="polite">未検査</div></div></div>
+<small>「一致」はこの固定架空データの画面内検算のみ。弥生会計26実データとの互換性・税額・実帳簿・BSの正確性は証明しません。確認ボタンで会計金額は変更されません。</small></section>
 <section aria-labelledby="history-title"><h2 id="history-title">画面操作履歴（メモリ内のみ）</h2>
 <p>仕訳候補の確認・取り消し操作だけを、この画面が開いている間に表示します。端末・サーバーへの保存はありません。</p>
 <ol id="demo-history" aria-live="polite"><li>まだ操作はありません。</li></ol></section>
@@ -111,4 +117,59 @@ document.getElementById("reset").addEventListener("click",()=>{
  reviewed.clear();filter.value="all";history.length=0;document.getElementById("demo-history").replaceChildren();recordDemoAction("架空デモを初期化");render();
 });
 render();
+
+/* No user input, no network and no persistence: fixed fictitious rows only. */
+function verifyFictionalReportParity(){
+ const value=(s)=>{const n=s.trim().replace(/[¥￥,\s]/g,"");return /^\d+$/.test(n)?Number(n):NaN;};
+ const amounts=new Map(), expectedLedger=new Map();
+ const add=(name,dr,cr)=>{
+  if(!Number.isSafeInteger(dr)||!Number.isSafeInteger(cr)||dr<0||cr<0)throw Error("invalid fictitious turnover");
+  const old=amounts.get(name)||[0,0];amounts.set(name,[old[0]+dr,old[1]+cr]);
+ };
+ const mark=(date,name,dr,cr)=>{const key=[date,name,dr,cr].join("|");expectedLedger.set(key,(expectedLedger.get(key)||0)+1);};
+ let total=0;
+ if(rows.length!==3)throw Error("unexpected fixture size");
+ for(const row of rows){
+  const c=row.cells;if(c.length!==7)throw Error("unexpected journal layout");
+  const v=value(c[3].textContent),date=c[0].textContent.trim();
+  if(!Number.isSafeInteger(v)||v<=0||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date))throw Error("invalid fixture");
+  const debit=c[1].textContent.trim(),credit=c[2].textContent.trim();
+  if(!debit||!credit||debit===credit)throw Error("invalid journal accounts");
+  add(debit,v,0);add(credit,0,v);mark(date,debit,v,0);mark(date,credit,0,v);total+=v;
+ }
+ const ledger=[...document.querySelectorAll("#ledger-body tr")].filter(tr=>tr.cells.length===5&&tr.querySelector("td"));
+ if(ledger.length!==rows.length*2)throw Error("incomplete general ledger");
+ const got=new Map(),ledgerSums=new Map();
+ for(const row of ledger){
+  const c=row.cells,date=c[0].textContent.trim(),name=c[1].textContent.trim(),dr=value(c[2].textContent),cr=value(c[3].textContent);
+  if(!Number.isSafeInteger(dr)||!Number.isSafeInteger(cr)||((dr>0)===(cr>0)))throw Error("invalid ledger line");
+  const key=[date,name,dr,cr].join("|");got.set(key,(got.get(key)||0)+1);
+  const old=ledgerSums.get(name)||[0,0];ledgerSums.set(name,[old[0]+dr,old[1]+cr]);
+ }
+ if(got.size!==expectedLedger.size||[...expectedLedger].some(([k,v])=>got.get(k)!==v))throw Error("ledger does not match journal");
+ const trial=[...document.querySelectorAll("#trial-body tr")];
+ if(trial.length!==amounts.size+1)throw Error("incomplete trial balance");
+ let trialDr=0,trialCr=0;
+ for(const row of trial.slice(0,-1)){
+  const c=row.cells;if(c.length!==3)throw Error("unexpected trial balance");
+  const name=c[0].textContent.trim(),dr=value(c[1].textContent),cr=value(c[2].textContent);
+  const expected=amounts.get(name),ledger=ledgerSums.get(name);
+  if(!expected||!ledger||expected[0]!==dr||expected[1]!==cr||ledger[0]!==dr||ledger[1]!==cr)throw Error("account amount mismatch");
+  trialDr+=dr;trialCr+=cr;
+ }
+ const foot=trial.at(-1).cells;
+ if(foot.length!==3||value(foot[1].textContent)!==total||value(foot[2].textContent)!==total||trialDr!==total||trialCr!==total)throw Error("turnover mismatch");
+ const revenue=amounts.get("売上高"),a=amounts.get("通信費"),b=amounts.get("消耗品費");
+ if(!revenue||!a||!b)throw Error("unknown fictional profit accounts");
+ const profit=(revenue[1]-revenue[0])-(a[0]-a[1])-(b[0]-b[1]);
+ const desired="差引 "+(profit<0?"△"+(-profit).toLocaleString("ja-JP"):profit.toLocaleString("ja-JP"))+"円";
+ if(document.getElementById("profit-number").textContent.trim()!==desired)throw Error("profit display mismatch");
+ const yen=total.toLocaleString("ja-JP")+"円";
+ document.getElementById("parity-debit").textContent=yen;
+ document.getElementById("parity-credit").textContent=yen;
+ document.getElementById("parity-result").textContent="一致（架空値）";
+}
+try{verifyFictionalReportParity();}catch(_error){
+ document.getElementById("parity-result").textContent="要再確認";
+}
 </script></body></html>
